@@ -1,39 +1,54 @@
 const request = require("supertest");
-const { generateManyBooks } = require("../src/fakes/book.fake");
-const mockGetAll = jest.fn();
+const { MongoClient } = require("mongodb");
 const createApp = require("../src/app");
+const { config } = require("../src/config");
 
-jest.mock("../src/lib/mongo.lib", () =>
-  jest.fn().mockImplementation(() => ({
-    getAll: mockGetAll,
-    create: () => {},
-  }))
-);
+const DB_NAME = config.dbName;
+const MONGO_URI = config.dbUrl;
 
 describe("Test for books", () => {
   let app = null;
   let server = null;
-  beforeAll(() => {
+  let database = null;
+  beforeAll(async () => {
     app = createApp();
     server = app.listen(3001);
+    const client = new MongoClient(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    await client.connect();
+    database = client.db(DB_NAME);
   });
 
   afterAll(async () => {
     await server.close();
+    await database.dropDatabase();
   });
   describe("test for [GET] /api/v1/books", () => {
-    test("should return books list", () => {
+    test("should return books list", async () => {
       //Arrange
-      const fakeBooks = generateManyBooks(5);
-      mockGetAll.mockResolvedValue(fakeBooks);
+      const seedData = await database.collection("books").insertMany([
+        {
+          name: "book 1",
+          year: 1998,
+          author: "juan",
+        },
+        {
+          name: "book 2",
+          year: 1999,
+          author: "pablo",
+        },
+      ]);
+      console.log("seedData: ", seedData);
       //Act
       return request(app)
         .get("/api/v1/books")
         .expect(200)
         .then(({ body }) => {
-          console.log(body);
+          console.log("body: ", body);
           //Assert
-          expect(body.length).toEqual(fakeBooks.length);
+          expect(body.length).toEqual(seedData.insertedCount);
         });
     });
   });
