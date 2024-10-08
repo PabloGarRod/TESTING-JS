@@ -30,6 +30,24 @@ jobs:
       - name: run lint
         shell: bash
         run: npm run lint
+  linter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Nodejs
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+          cache: "npm"
+          cache-dependency-path: ./api/package-lock.json
+      - name: install
+        shell: bash
+        run: npm ci
+      - name: run lint
+        shell: bash
+        run: npm run lint
+
   e2e:
     runs-on: ubuntu-latest
     container:
