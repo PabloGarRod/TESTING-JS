@@ -27,3 +27,6 @@ jobs:
       - name: run unit test
         shell: bash
         run: npm run test
+      - name: run lint
+        shell: bash
+        run: npm run lint
