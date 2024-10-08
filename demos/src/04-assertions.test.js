@@ -1,6 +1,6 @@
 // matchers
 
-test("test obj", () => {
+test("testObj", () => {
   const data = { name: "Pablo" };
   data.lastName = "Garcia";
   expect(data).toEqual({ name: "Pablo", lastName: "Garcia" });
