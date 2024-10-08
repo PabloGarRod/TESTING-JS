@@ -27,6 +27,9 @@ jobs:
       - name: run unit test
         shell: bash
         run: npm run test
+      - name: run e2e test
+        shell: bash
+        run: npm run test:e2e
       - name: run lint
         shell: bash
         run: npm run lint
